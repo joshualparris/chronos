@@ -8,6 +8,7 @@ LOG_DIR="/home/josh/.chronos"
 LOG_FILE="$LOG_DIR/chronos-launch.log"
 BACKEND_URL="http://127.0.0.1:3001/api/health"
 FRONTEND_URL="http://127.0.0.1:5173"
+VERCEL_FRONTEND_ORIGIN="https://frontend-seven-flame-gceb9izi76.vercel.app"
 
 mkdir -p "$LOG_DIR"
 
@@ -21,7 +22,7 @@ cleanup() {
 trap cleanup EXIT INT TERM
 
 cd "$BACKEND_DIR"
-npm start >> "$LOG_FILE" 2>&1 &
+ALLOWED_ORIGINS="${ALLOWED_ORIGINS:-$VERCEL_FRONTEND_ORIGIN}" npm start >> "$LOG_FILE" 2>&1 &
 BACKEND_PID=$!
 
 cd "$FRONTEND_DIR"

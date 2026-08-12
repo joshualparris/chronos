@@ -13,10 +13,15 @@ const app = express();
 
 // Allow any localhost origin — Vite dev server can shift ports (5173, 5174…)
 const ALLOWED_ORIGIN = process.env.ALLOWED_ORIGIN || null;
+const EXTRA_ALLOWED_ORIGINS = (process.env.ALLOWED_ORIGINS || '')
+  .split(',')
+  .map(origin => origin.trim())
+  .filter(Boolean);
 app.use(cors({
   origin: (origin, cb) => {
     if (!origin) return cb(null, true); // same-origin / curl
     if (ALLOWED_ORIGIN) return cb(null, origin === ALLOWED_ORIGIN);
+    if (EXTRA_ALLOWED_ORIGINS.includes(origin)) return cb(null, true);
     if (/^https?:\/\/(localhost|127\.0\.0\.1|\[::1\])(:\d+)?$/.test(origin)) {
       return cb(null, true);
     }
