@@ -8,6 +8,12 @@
  */
 
 const request = require('supertest');
+
+process.env.ALLOWED_ORIGINS = [
+  process.env.ALLOWED_ORIGINS,
+  'https://frontend-seven-flame-gceb9izi76.vercel.app',
+].filter(Boolean).join(',');
+
 const app = require('../server');
 
 // ── Mock the systemd service ──────────────────────────────────────────────────
@@ -63,6 +69,18 @@ describe('GET /api/health', () => {
 
     expect(res.status).toBe(200);
     expect(res.headers['access-control-allow-origin']).toBe('http://127.0.0.1:5173');
+  });
+
+  it('allows browser private-network preflights from deployed frontend origin', async () => {
+    const res = await request(app)
+      .options('/api/health')
+      .set('Origin', 'https://frontend-seven-flame-gceb9izi76.vercel.app')
+      .set('Access-Control-Request-Method', 'GET')
+      .set('Access-Control-Request-Private-Network', 'true');
+
+    expect(res.status).toBe(204);
+    expect(res.headers['access-control-allow-origin']).toBe('https://frontend-seven-flame-gceb9izi76.vercel.app');
+    expect(res.headers['access-control-allow-private-network']).toBe('true');
   });
 });
 
